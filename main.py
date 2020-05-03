@@ -73,7 +73,7 @@ def add_to_postings(token, docId, header_freq, body_freq):
     else:
         posting_list = posting[token]
         posting_list.sorted_add_node(docId, header_freq, body_freq)
-        posting[token] = posting_list
+    
     print ('token: ', token, "ID: ", posting[token].print_func())
     
 
@@ -104,10 +104,11 @@ def calculate_tf_idf(docId):
         idf_score = math.log(float(corpus_size)/(occurences_token+1))
         print("----IDF SCORE----:", idf_score)
         # calculate the tf-idf for each doc in the linked list 
-        calculate_tfidf(idf_score)
+        posting[token].calculate_tfidf(idf_score)
+        print ('token: ', token, "ID: ", posting[token].print_func())
 
 #/Users/sarthakgupta/Desktop/Search-Engine-master/DEV
-for direc in pathlib.Path("/Users/samhithatarra/Desktop/Search-Engine/shortened").iterdir():
+for direc in pathlib.Path("/Users/sarthakgupta/Desktop/Search-Engine-master/ANALYST").iterdir():
     for path in pathlib.Path(direc).iterdir():
         if path.is_file():
             docId+=1

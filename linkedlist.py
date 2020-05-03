@@ -45,7 +45,9 @@ class LinkedList:
         while current != None:
             tf_idf = (current.header_freq*idf*0.7)+(current.body_freq*idf*0.3)
             current.tf_idf_score = tf_idf
+            #print (current.tf_idf_score)
             current = current.next 
+            
     
     def len_of_list(self):
         len_list = 0
