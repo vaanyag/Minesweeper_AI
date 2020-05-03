@@ -9,11 +9,12 @@ from nltk.stem import PorterStemmer
 from nltk.tokenize import word_tokenize
 from bs4 import BeautifulSoup
 import lxml
-#from node.py import Nodes
+from linkedlist import LinkedList
 from collections import defaultdict
+import math
 
 posting = dict()
-num_docID = 1
+docId = 0
 
 def find_content(path):
     #-------------
@@ -28,6 +29,7 @@ def find_content(path):
     with open(path, "r") as current_file:
         json_obj = json.load(current_file)
         content = json_obj['content']
+        print(json_obj['url'])
         soup = BeautifulSoup(content,"lxml")
         tags_dict['p'] = [s for s in soup.findAll('p')]
         header_lst = [s for s in soup.findAll('h1')]
@@ -62,29 +64,53 @@ def find_tokens(words_lst):
                 token_lst.append(token)
     return token_lst
 
+def add_to_postings(token, docId, header_freq, body_freq):
+    global posting
+    if token not in posting.keys():
+        posting_list = LinkedList()
+        posting_list.sorted_add_node(docId, header_freq, body_freq)
+        posting[token] = posting_list
+    else:
+        posting_list = posting[token]
+        posting_list.sorted_add_node(docId, header_freq, body_freq)
+        posting[token] = posting_list
+    print ('token: ', token, "ID: ", posting[token].print_func())
+    
+
+
 def tf_calculation(unique_tokens,tags_dict,total_token_count):
     #-------------
     # Calculates the tf score for each word and stores 
-    # the docID and the tf score in the token node.
+    # the docId and the tf score in the token node.
     #-------------
 
     for token in unique_tokens:
         # Need to initialize new node for linked list
         header_freq = 0
         body_freq = 0
-        tf_score = 0
         if token in tags_dict['headers']:
             header_freq += tags_dict['headers'][token]
         if token in tags_dict['p']:
             body_freq += tags_dict['p'][token]
-        header_freq = float(header_freq)/total_token_count
-        body_freq = float(body_freq)/total_token_count
+            header_freq = float(header_freq)/total_token_count
+            body_freq = float(body_freq)/total_token_count
+        #call function to add node into the index
+        add_to_postings(token, docId, header_freq, body_freq)
+    
+def calculate_tf_idf(docId):
+    corpus_size = docId
+    for token, posting_lst in posting.items():
+        occurences_token = posting[token].len_of_list()
+        idf_score = math.log(float(corpus_size)/(occurences_token+1))
+        print("----IDF SCORE----:", idf_score)
+        # calculate the tf-idf for each doc in the linked list 
+        calculate_tfidf(idf_score)
 
 #/Users/sarthakgupta/Desktop/Search-Engine-master/DEV
-for direc in pathlib.Path("/Users/samhithatarra/Desktop/Search-Engine/DEV").iterdir():
+for direc in pathlib.Path("/Users/samhithatarra/Desktop/Search-Engine/shortened").iterdir():
     for path in pathlib.Path(direc).iterdir():
         if path.is_file():
-
+            docId+=1
             total_token_count = 0
             find_lst = []
             unique_tokens = []
@@ -109,14 +135,11 @@ for direc in pathlib.Path("/Users/samhithatarra/Desktop/Search-Engine/DEV").iter
 
             #tfidf calculation
             tf_calculation(unique_tokens,tags_dict,total_token_count)
-            
-                
-            for k,v in tags_dict.items():
-                print("***KEY***:", k, "VALUE:", v)
-                
-            #current_file.close()
 
-    #def calculate_tf():
-        #pass
-    
-    # print(token_lst)
+        
+            
+            # for k,v in tags_dict.items():
+            #     print("***KEY***:", k, "VALUE:", v)
+                
+# here 
+calculate_tf_idf(docId)
