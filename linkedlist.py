@@ -22,7 +22,6 @@ class LinkedList:
                 #store the previous pointers starting with head
                 previous = self.head
                 
-                
                 #go through list to find place to add (go through all smaller numbers and move previous) 
                 #make sure to stop if the end of the list is reached 
                 while previous.docId < new_node.docId and previous.next != None and previous.next.docId < new_node.docId:
@@ -43,9 +42,9 @@ class LinkedList:
     def calculate_tfidf(self, idf):
         current = self.head
         while current != None:
+            # TF-IDF(headers) *0.7 + TF-IDF(body) *0.3 
             tf_idf = (current.header_freq*idf*0.7)+(current.body_freq*idf*0.3)
             current.tf_idf_score = tf_idf
-            #print (current.tf_idf_score)
             current = current.next 
             
     
